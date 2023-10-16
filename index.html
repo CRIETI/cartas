@@ -110,7 +110,7 @@
 
       async function fetchCards() {
         try {
-          const response = await fetch('http://localhost:3005/cards');
+          const response = await fetch('http://177.44.248.24/cards/cards');
           const newData = await response.json();
 
           if (cardsData.length === 0) {
@@ -149,7 +149,7 @@
       async function flipCard(card, cardData) {
         if (!cardData.flip) {
           try {
-            const response = await fetch(`http://localhost:3005/cards/flip/${cardData.id}`);
+            const response = await fetch(`http://177.44.248.24/cards/cards/flip/${cardData.id}`);
             if (response.ok) {
               card.classList.remove('not-flipped');
               card.classList.add('flipped');
@@ -166,7 +166,7 @@
 
       resetButton.addEventListener('click', async () => {
         try {
-          const response = await fetch('http://localhost:3005/cards/flip');
+          const response = await fetch('http://177.44.248.24/cards/cards/flip');
           if (response.ok) {
             location.reload();
           } else {
