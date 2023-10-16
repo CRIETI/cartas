@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartas</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    #card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .card {
+      width: 200px;
+      height: 300px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      margin: 10px;
+      perspective: 1000px;
+      cursor: pointer;
+      transition: transform 0.5s, background-color 0.5s;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card.flipped {
+      transform: rotateY(180deg);
+      background-color: #7d9fff;
+    }
+
+    .card.not-flipped {
+      background-color: #b3e87c;
+    }
+
+    .card-content {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .card-description {
+      font-size: 1rem;
+      display: none;
+    }
+
+    .flipped .card-title {
+      display: block;
+      transform: rotateY(180deg);
+    }
+
+    #button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #reset-button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="button-container">
+    <button id="reset-button">Resetar</button>
+  </div>
+  <div id="card-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const cardContainer = document.getElementById('card-container');
+      const resetButton = document.getElementById('reset-button');
+      let cardsData = [];
+
+      async function fetchCards() {
+        try {
+          const response = await fetch('http://localhost:3005/cards');
+          const newData = await response.json();
+
+          if (cardsData.length === 0) {
+            cardsData = newData;
+            createCards(cardsData);
+          } else {
+            cardsData.forEach((cardData, index) => {
+              if (newData[index].flip && !cardData.flip) {
+                const cardElement = cardContainer.children[index];
+                cardElement.classList.add('flipped');
+                cardData.flip = true;
+                cardElement.style.backgroundColor = '#7d9fff';
+              }
+            });
+          }
+        } catch (error) {
+          console.error('Erro ao buscar dados da API:', error);
+        }
+      }
+
+      function createCards(cardsData) {
+        cardContainer.innerHTML = '';
+        cardsData.forEach((cardData) => {
+          const card = document.createElement('div');
+          card.classList.add('card', cardData.flip ? 'flipped' : 'not-flipped');
+          card.innerHTML = `
+            <div class="card-content">
+              <div class="card-title">${cardData.content}</div>
+            </div>
+          `;
+          card.addEventListener('click', () => flipCard(card, cardData));
+          cardContainer.appendChild(card);
+        });
+      }
+
+      async function flipCard(card, cardData) {
+        if (!cardData.flip) {
+          try {
+            const response = await fetch(`http://localhost:3005/cards/flip/${cardData.id}`);
+            if (response.ok) {
+              card.classList.remove('not-flipped');
+              card.classList.add('flipped');
+              card.style.backgroundColor = '#7d9fff';
+              cardData.flip = true;
+            } else {
+              console.error('Erro ao atualizar o estado da carta.');
+            }
+          } catch (error) {
+            console.error('Erro ao atualizar o estado da carta:', error);
+          }
+        }
+      }
+
+      resetButton.addEventListener('click', async () => {
+        try {
+          const response = await fetch('http://localhost:3005/cards/flip');
+          if (response.ok) {
+            location.reload();
+          } else {
+            console.error('Erro ao resetar as cartas.');
+          }
+        } catch (error) {
+          console.error('Erro ao resetar as cartas:', error);
+        }
+      });
+
+      fetchCards();
+
+      setInterval(fetchCards, 5000);
+    });
+  </script>
+</body>
+
+</html>
