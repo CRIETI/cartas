@@ -56,6 +56,12 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      text-align: center;
+    }
+
+    a {
+      text-decoration: none;
+      color: #FFF;
     }
 
     .card-title {
@@ -79,16 +85,31 @@
       margin-top: 20px;
     }
 
+    #reset-button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
   </style>
 </head>
 
 <body>
- 
+
   <div id="card-container"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const cardContainer = document.getElementById('card-container');
+      
       let cardsData = [];
 
       async function fetchCards() {
@@ -104,8 +125,12 @@
               if (newData[index].flip && !cardData.flip) {
                 const cardElement = cardContainer.children[index];
                 cardElement.classList.add('flipped');
-                cardData.flip = true;
                 cardElement.style.backgroundColor = '#7d9fff';
+              } else if (!newData[index].flip && cardData.flip) {
+                const cardElement = cardContainer.children[index];
+                cardElement.classList.add('not-flipped');
+                cardElement.classList.remove('flipped');
+                cardElement.style.backgroundColor = '#b3e87c';
               }
             });
           }
@@ -121,7 +146,7 @@
           card.classList.add('card', cardData.flip ? 'flipped' : 'not-flipped');
           card.innerHTML = `
             <div class="card-content">
-              <div class="card-title">${cardData.content}</div>
+              <div class="card-title"><a target="_blan" href="${cardData.url}">${cardData.content}</a></div>
             </div>
           `;
           card.addEventListener('click', () => flipCard(card, cardData));
@@ -146,8 +171,6 @@
           }
         }
       }
-
-      
 
       fetchCards();
 
