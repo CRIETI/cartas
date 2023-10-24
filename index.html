@@ -103,13 +103,12 @@
 </head>
 
 <body>
-
+ 
   <div id="card-container"></div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const cardContainer = document.getElementById('card-container');
-      
       let cardsData = [];
 
       async function fetchCards() {
@@ -126,11 +125,6 @@
                 const cardElement = cardContainer.children[index];
                 cardElement.classList.add('flipped');
                 cardElement.style.backgroundColor = '#7d9fff';
-              } else if (!newData[index].flip && cardData.flip) {
-                const cardElement = cardContainer.children[index];
-                cardElement.classList.add('not-flipped');
-                cardElement.classList.remove('flipped');
-                cardElement.style.backgroundColor = '#b3e87c';
               }
             });
           }
